@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "dependencies": {
+    "vk-io": "^4.8.3"
+  }
+}
