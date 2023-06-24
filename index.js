@@ -26,7 +26,7 @@ async function run() {
     }
 
     //мерджем OR, а потом просто
-    let input = "26863530 AND (153262933 AND 64135965)"
+    let input = "26863530 AND (153262933 OR 64135965)"
     input = input;
     let check = async (str) => {
         str = str.split("");
