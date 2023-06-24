@@ -100,7 +100,6 @@ async function run() {
                     }
                     let and = left.filter(value => right.includes(value));
 
-                    console.log({ and })
                     arr.splice(i - 1, 3, { kek: and });
                     i = i - 1;
                 }
