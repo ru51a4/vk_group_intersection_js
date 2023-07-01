@@ -29,7 +29,7 @@ async function run() {
     let getUserInfo = async (id) => {
         return await vk.api.users.get({
             user_ids: [id],
-            fields: ["bdate", "sex", "photo_100"]
+            fields: ["bdate", "sex", "photo_100", "relation"]
         });
     };
 
@@ -130,6 +130,17 @@ async function run() {
         return stack[0][0].kek;
 
     }
+    let r = {
+        "1": "не женат / не замужем",
+        "2": "есть друг / есть подруга",
+        "3": "помолвлен / помолвлена",
+        "4": "женат / замужем",
+        "5": "всё сложно",
+        "6": "в активном поиске",
+        "7": "влюблён / влюблена",
+        "8": "в гражданском браке",
+        "0": "не указано"
+    }
     let ids = (await check(input));
     var stream = fs.createWriteStream("result.html");
     stream.once('open', async (fd) => {
@@ -148,6 +159,8 @@ async function run() {
                 ${data.first_name} ${data.last_name}
                 <br>
                 ${data.bdate}
+                <br>
+                ${r[data.relation]}
                 </li>`);
         }
         stream.end();
