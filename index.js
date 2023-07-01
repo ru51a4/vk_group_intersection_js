@@ -1,4 +1,5 @@
 import { VK } from 'vk-io';
+import * as fs from 'fs';
 
 const vk = new VK({
     token: "TOKEN"
@@ -22,8 +23,15 @@ async function run() {
             })).items);
             i += 1000;
         }
+        console.log(id, "done")
         return res;
     }
+    let getUserInfo = async (id) => {
+        return await vk.api.users.get({
+            user_ids: [id],
+            fields: ["bdate", "sex", "photo_100"]
+        });
+    };
 
     //мерджем OR, а потом просто
     let input = "80473162 AND (86115925 OR 153262933 OR 79347443)"
@@ -122,7 +130,28 @@ async function run() {
         return stack[0][0].kek;
 
     }
-    console.log(await check(input));
+    let ids = (await check(input));
+    var stream = fs.createWriteStream("result.html");
+    stream.once('open', async (fd) => {
+        stream.write(`<html><body><ul style="display:flex; flex-wrap:wrap;">`);
+        for (let i = 0; i <= ids.length - 1; i++) {
+            let id = ids[i];
+            let data = (await getUserInfo(id))[0];
+            stream.write(`
+            <li style="margin:10px; border:1px solid black;">
+                <a href="https://vk.com/id${id}">
+                    <img src="${data.photo_100}">
+                </a>
+                <br>
+                ${(data.sex == 2 ? 'муж' : "жен")}
+                <br>
+                ${data.first_name} ${data.last_name}
+                <br>
+                ${data.bdate}
+                </li>`);
+        }
+        stream.end();
+    });
 }
 
 run()
