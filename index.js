@@ -1,5 +1,6 @@
 import { VK } from 'vk-io';
 import * as fs from 'fs';
+import bracketParser from 'brackets-parser';
 
 const vk = new VK({
     token: "TOKEN"
@@ -37,98 +38,36 @@ async function run() {
     let input = "80473162 AND (86115925 OR 153262933 OR 79347443)"
     input = input;
     let check = async (str) => {
-        str = str.split("");
-        let stack = [[]];
-        let t = '';
-        while (str.length) {
-            let next = () => {
-                while (str.length) {
-                    let t = str.shift();
-                    if (t !== '\n' && t !== "\t") {
-                        return t;
-                    }
-                }
-            }
-            let ch = next();
-            if (ch === "(") {
-                stack.push([]);
-            } else if (ch === ")") {
-                //
-                stack[stack.length - 1].push(t);
-                t = '';
-                //
-                let c = stack[stack.length - 1];
-                stack.pop();
-                stack[stack.length - 1].push(c);
-            } else {
-                if (ch == " ") {
-                    stack[stack.length - 1].push(t);
-                    t = '';
+        let arg = {
+            "OR": async (left, right) => {
+                if (left?.kek) {
+                    left = left.kek;
                 } else {
-                    t += ch;
+                    left = await getMembers(left);
                 }
-
+                if (right?.kek) {
+                    right = right.kek;
+                } else {
+                    right = await getMembers(right);
+                }
+                return [...left, ...right];
+            },
+            "AND": async (left, right) => {
+                if (left?.kek) {
+                    left = left.kek;
+                } else {
+                    left = await getMembers(left);
+                }
+                if (right?.kek) {
+                    right = right.kek;
+                } else {
+                    right = await getMembers(right);
+                }
+                return left.filter(value => right.includes(value));
             }
-        }
-        if (t.length) {
-            stack[stack.length - 1].push(t);
-        }
-        let calc = async (arr) => {
-
-            for (let i = 0; i <= arr.length - 1; i++) {
-                if (arr[i] === "OR") {
-                    let left;
-                    if (arr[i - 1]?.kek) {
-                        left = arr[i - 1].kek;
-                    } else {
-                        left = await getMembers(arr[i - 1]);
-                    }
-                    let right;
-                    if (arr[i + 1]?.kek) {
-                        right = arr[i + 1].kek;
-                    } else {
-                        right = await getMembers(arr[i + 1]);
-                    }
-                    let or = [...left, ...right];
-                    arr.splice(i - 1, 3, { kek: or });
-                    i = i - 1;
-                }
-                if (arr[i] === "AND") {
-                    let left;
-                    if (arr[i - 1]?.kek) {
-                        left = arr[i - 1].kek;
-                    } else {
-                        left = await getMembers(arr[i - 1]);
-                    }
-                    let right;
-                    if (arr[i + 1]?.kek) {
-                        right = arr[i + 1].kek;
-                    } else {
-                        right = await getMembers(arr[i + 1]);
-                    }
-                    let and = left.filter(value => right.includes(value));
-
-                    arr.splice(i - 1, 3, { kek: and });
-                    i = i - 1;
-                }
-            }
-        }
-        let deep = async (arr) => {
-            for (let i = 0; i <= arr.length - 1; i++) {
-                if (Array.isArray(arr[i])) {
-                    if (arr[i].length === 1) {
-                        arr[i] = arr[i][0];
-                    } else {
-                        await deep(arr[i]);
-                        i = i - 1;
-                    }
-                }
-            }
-            await calc(arr);
-        }
-        await deep(stack[0]);
-        return stack[0][0].kek;
-
+        };
+        let stack = await bracketParser.parse(arg, str);
+        return stack[0].kek;
     }
     let r = {
         "1": "не женат / не замужем",

@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "brackets-parser": "github:ru51a4/bracket-parser",
     "vk-io": "^4.8.3"
   }
 }
