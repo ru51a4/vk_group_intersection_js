@@ -66,7 +66,7 @@ async function run() {
                 return left.filter(value => right.includes(value));
             }
         };
-        let stack = await bracketParser.parse(arg, str);
+        let stack = await bracketParser.parse(str, arg);
         return stack[0].kek;
     }
     let r = {
